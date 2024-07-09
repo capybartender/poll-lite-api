@@ -18,7 +18,7 @@ func CreateHandlerPost(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "You've requested POST, but got an error back: %s at %s\n", r.URL.Path, time.Now())
 	} else {
 		newQuestionaryId := dataProvider.CreateQuestionary(body)
-		json.NewEncoder(w).Encode(newQuestionaryId)
+		writeResponseAsJson(&w, newQuestionaryId)
 	}
 }
 
@@ -48,14 +48,18 @@ func ResultsHandlerGet(w http.ResponseWriter, r *http.Request) {
 	writeResponseResultAsJson(&w, id)
 }
 
+func writeResponseAsJson(w *http.ResponseWriter, val any) error {
+	return json.NewEncoder(*w).Encode(val)
+}
+
 func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
 	result := dataProvider.GetResult(id)
-	json.NewEncoder(*w).Encode(result)
+	writeResponseAsJson(w, result)
 }
 
 func writeResponseQuestionaryAsJson(w *http.ResponseWriter, id string) {
 	result := dataProvider.GetQuestionary(id)
-	json.NewEncoder(*w).Encode(result)
+	writeResponseAsJson(w, result)
 }
 
 func main() {

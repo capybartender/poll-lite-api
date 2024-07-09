@@ -18,16 +18,14 @@ type Creator struct {
 }
 
 type Option struct {
-	Id       OptionId
-	Text     string
-	MediaUrl string
+	Id   OptionId
+	Text string
 }
 
 type Questionary struct {
 	Id          QuestionaryId
 	Title       string
 	Description string
-	MediaUrl    string
 
 	CreatedBy        Creator
 	CreatedAt        time.Time
@@ -46,16 +44,14 @@ type Answer struct {
 /////////////////////////////////
 
 type OptionBody struct {
-	Id       string `json:"id"`
-	Text     string `json:"text"`
-	MediaUrl string `json:"mediaUrl"`
+	Id   string `json:"id"`
+	Text string `json:"text"`
 }
 
 type QuestionaryBody struct {
 	Id               string       `json:"id"`
 	Title            string       `json:"title"`
 	Description      string       `json:"description"`
-	MediaUrl         string       `json:"mediaUrl"`
 	CreatedBy        string       `json:"createdBy"`
 	Options          []OptionBody `json:"options"`
 	IsMultipleChoice bool         `json:"isMultipleChoice"`
