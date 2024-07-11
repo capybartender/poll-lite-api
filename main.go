@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	dataProvider "poll-lite/dataprovider"
+	"poll-lite/dataprovider"
 	"poll-lite/models"
 	"time"
 
@@ -17,7 +17,7 @@ func CreateHandlerPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, "You've requested POST, but got an error back: %s at %s\n", r.URL.Path, time.Now())
 	} else {
-		newQuestionaryId := dataProvider.CreateQuestionary(body)
+		newQuestionaryId := dataprovider.CreateQuestionary(body)
 		writeResponseAsJson(&w, newQuestionaryId)
 	}
 }
@@ -30,13 +30,13 @@ func PollHandlerGet(w http.ResponseWriter, r *http.Request) {
 func PollHandlerPost(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	var body models.Answer
+	var body models.AnswerBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 
 	if err != nil {
 		fmt.Fprintf(w, "You've requested POST, but got an error back: %s at %s\n", r.URL.Path, time.Now())
 	} else {
-		dataProvider.SaveAnswer(id, body)
+		dataprovider.SaveAnswer(id, body)
 	}
 
 	writeResponseResultAsJson(&w, id)
@@ -53,12 +53,12 @@ func writeResponseAsJson(w *http.ResponseWriter, val any) error {
 }
 
 func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
-	result := dataProvider.GetResult(id)
+	result := dataprovider.GetResult(id)
 	writeResponseAsJson(w, result)
 }
 
 func writeResponseQuestionaryAsJson(w *http.ResponseWriter, id string) {
-	result := dataProvider.GetQuestionary(id)
+	result := dataprovider.GetQuestionary(id)
 	writeResponseAsJson(w, result)
 }
 

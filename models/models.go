@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 type QuestionaryId string
 type CreatorId string
 type OptionId string
@@ -12,33 +8,10 @@ type CreatorName string
 type CreatorSecret string
 type CreatorSalt string
 
-type Creator struct {
-	Id   CreatorId
-	Name string
-}
-
-type Option struct {
-	Id   OptionId
-	Text string
-}
-
-type Questionary struct {
-	Id          QuestionaryId
-	Title       string
-	Description string
-
-	CreatedBy        Creator
-	CreatedAt        time.Time
-	Options          []Option
-	IsMultipleChoice bool
-	IsAnonymous      bool
-}
-
-type Answer struct {
+type AnswerBody struct {
 	QuestionaryId    QuestionaryId `json:"questionaryId"`
 	RespondentName   string        `json:"respondentName"`
 	RespondentChoice []OptionId    `json:"respondentChoice"`
-	//CreatedAt        time.Time     `json:"createdAt"`
 }
 
 /////////////////////////////////
@@ -56,9 +29,10 @@ type QuestionaryBody struct {
 	Options          []OptionBody `json:"options"`
 	IsMultipleChoice bool         `json:"isMultipleChoice"`
 	IsAnonymous      bool         `json:"isAnonymous"`
+	//CreatedAt        time.Time     `json:"createdAt"`
 }
 
-type ResultBody struct {
+type ResultViewModel struct {
 	Questionary QuestionaryBody `json:"questionary"`
-	Votes       []Answer        `json:"votes"`
+	Votes       []AnswerBody    `json:"votes"`
 }

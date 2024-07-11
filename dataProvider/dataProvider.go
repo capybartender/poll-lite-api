@@ -1,12 +1,12 @@
-package dataProvider
+package dataprovider
 
 import (
 	"poll-lite/idgenerator"
 	"poll-lite/models"
 )
 
-func GetResult(id string) models.ResultBody {
-	result := models.ResultBody{
+func GetResult(id string) models.ResultViewModel {
+	result := models.ResultViewModel{
 		Questionary: models.QuestionaryBody{
 			Id:               id,
 			Title:            "Test",
@@ -29,7 +29,7 @@ func GetResult(id string) models.ResultBody {
 				},
 			},
 		},
-		Votes: []models.Answer{
+		Votes: []models.AnswerBody{
 			{
 				QuestionaryId:    models.QuestionaryId(id),
 				RespondentName:   "me1",
@@ -78,7 +78,7 @@ func GetQuestionary(id string) models.QuestionaryBody {
 	return result
 }
 
-func SaveAnswer(id string, answer models.Answer) {
+func SaveAnswer(id string, answer models.AnswerBody) {
 	// TODO: save it
 }
 
