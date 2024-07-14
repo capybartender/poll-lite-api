@@ -1,7 +1,6 @@
 package idgenerator
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"sync"
@@ -25,11 +24,7 @@ func randStringBytes(keyLength int) string {
 	return string(b)
 }
 
-// func GenerateUniqueString() string {
-// 	// TODO: make it a separate service - save to a db, check for uniqueness etc.
-// 	newKey := randStringBytes(KEY_LENGTH)
-// 	return newKey
-// }
+// TODO: make it a separate service - save to a db, check for uniqueness etc.
 
 func TakeNextUniqueKey() (string, error) {
 	if !generatedKeysAvailable() {
@@ -56,7 +51,7 @@ func popNextFreeKey() (string, error) {
 	lastIndex := len(cache) - 1
 
 	if lastIndex < 0 {
-		return "", errors.New("There are no keys in the cache")
+		return "", errNoKeysInCacheError
 	}
 
 	element := cache[lastIndex]
@@ -87,6 +82,8 @@ func generateKeys(keysCount int) *[]string {
 	}
 
 	wg.Wait()
+
+	keys = *removeDuplicateStr(&keys)
 
 	return &keys
 }
