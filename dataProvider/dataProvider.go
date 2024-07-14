@@ -1,8 +1,8 @@
 package dataprovider
 
 import (
-	"poll-lite/idgenerator"
 	"poll-lite/models"
+	"poll-lite/services/idgenerator"
 )
 
 func GetResult(id string) models.ResultViewModel {
@@ -84,5 +84,6 @@ func SaveAnswer(id string, answer models.AnswerBody) {
 
 func CreateQuestionary(body models.QuestionaryBody) string {
 	// TODO: save it
-	return idgenerator.GenerateUniqueString()
+	key, _ := idgenerator.TakeNextUniqueKey()
+	return key
 }
