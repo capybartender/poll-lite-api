@@ -5,6 +5,7 @@ import (
 	"poll-lite/services/idgenerator"
 )
 
+// TODO: remove
 func mockQuestionary(id string) models.QuestionaryBody {
 	return models.QuestionaryBody{
 		Id:               id,
@@ -30,29 +31,25 @@ func mockQuestionary(id string) models.QuestionaryBody {
 	}
 }
 
-func GetResult(id string) models.ResultViewModel {
-	result := models.ResultViewModel{
-		Questionary: mockQuestionary(id),
-		Votes: []models.AnswerBody{
-			{
-				QuestionaryId:    models.QuestionaryId(id),
-				RespondentName:   "me1",
-				RespondentChoice: []models.OptionId{"1"},
-			},
-			{
-				QuestionaryId:    models.QuestionaryId(id),
-				RespondentName:   "me2",
-				RespondentChoice: []models.OptionId{"1", "2"},
-			},
-			{
-				QuestionaryId:    models.QuestionaryId(id),
-				RespondentName:   "me3",
-				RespondentChoice: []models.OptionId{"2", "3"},
-			},
+// TODO: remove
+func mockAnswers(id string) []models.AnswerBody {
+	return []models.AnswerBody{
+		{
+			QuestionaryId:    models.QuestionaryId(id),
+			RespondentName:   "me1",
+			RespondentChoice: []models.OptionId{"1"},
+		},
+		{
+			QuestionaryId:    models.QuestionaryId(id),
+			RespondentName:   "me2",
+			RespondentChoice: []models.OptionId{"1", "2"},
+		},
+		{
+			QuestionaryId:    models.QuestionaryId(id),
+			RespondentName:   "me3",
+			RespondentChoice: []models.OptionId{"2", "3"},
 		},
 	}
-
-	return result
 }
 
 func GetQuestionary(id string) (models.QuestionaryBody, error) {
@@ -66,8 +63,18 @@ func GetQuestionary(id string) (models.QuestionaryBody, error) {
 	return questionary, nil
 }
 
-func SaveAnswer(id string, answer models.AnswerBody) {
-	// TODO: save it
+func GetAnswers(id string) ([]models.AnswerBody, error) {
+	answers, err := getAnswers(id)
+
+	if err != nil {
+		return mockAnswers(id), err
+	}
+
+	return answers, nil
+}
+
+func SaveAnswer(id string, answer *models.AnswerBody) error {
+	return saveAnswer(id, answer)
 }
 
 func CreateQuestionary(body *models.QuestionaryBody) (string, error) {

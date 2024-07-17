@@ -43,7 +43,7 @@ func PollHandlerPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, "You've requested POST, but got an error back: %s at %s\n", r.URL.Path, time.Now())
 	} else {
-		dataservice.SaveAnswer(id, body)
+		dataservice.SaveAnswer(id, &body)
 	}
 
 	writeResponseResultAsJson(&w, id)
@@ -60,7 +60,15 @@ func writeResponseAsJson(w *http.ResponseWriter, val any) error {
 }
 
 func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
-	result := dataservice.GetResult(id)
+	// TODO: don't ignore errors, return proper response
+	questionary, _ := dataservice.GetQuestionary(id)
+	answers, _ := dataservice.GetAnswers(id)
+
+	result := models.ResultViewModel{
+		Questionary: questionary,
+		Votes:       answers,
+	}
+
 	writeResponseAsJson(w, result)
 }
 
