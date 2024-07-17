@@ -52,6 +52,13 @@ func GetResult(id string) models.ResultViewModel {
 }
 
 func GetQuestionary(id string) models.QuestionaryBody {
+
+	questionary, err := getQuestionary(id)
+
+	if err == nil {
+		return questionary
+	}
+
 	result := models.QuestionaryBody{
 		Id:               id,
 		Title:            "Test",
