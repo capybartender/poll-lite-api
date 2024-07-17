@@ -5,30 +5,34 @@ import (
 	"poll-lite/services/idgenerator"
 )
 
-func GetResult(id string) models.ResultViewModel {
-	result := models.ResultViewModel{
-		Questionary: models.QuestionaryBody{
-			Id:               id,
-			Title:            "Test",
-			Description:      "Test Questionary",
-			CreatedBy:        "me",
-			IsMultipleChoice: true,
-			IsAnonymous:      true,
-			Options: []models.OptionBody{
-				{
-					Id:   "1",
-					Text: "one",
-				},
-				{
-					Id:   "2",
-					Text: "two",
-				},
-				{
-					Id:   "3",
-					Text: "three",
-				},
+func mockQuestionary(id string) models.QuestionaryBody {
+	return models.QuestionaryBody{
+		Id:               id,
+		Title:            "Test",
+		Description:      "Test Questionary",
+		CreatedBy:        "me",
+		IsMultipleChoice: true,
+		IsAnonymous:      true,
+		Options: []models.OptionBody{
+			{
+				Id:   "1",
+				Text: "one",
+			},
+			{
+				Id:   "2",
+				Text: "two",
+			},
+			{
+				Id:   "3",
+				Text: "three",
 			},
 		},
+	}
+}
+
+func GetResult(id string) models.ResultViewModel {
+	result := models.ResultViewModel{
+		Questionary: mockQuestionary(id),
 		Votes: []models.AnswerBody{
 			{
 				QuestionaryId:    models.QuestionaryId(id),
@@ -51,38 +55,15 @@ func GetResult(id string) models.ResultViewModel {
 	return result
 }
 
-func GetQuestionary(id string) models.QuestionaryBody {
+func GetQuestionary(id string) (models.QuestionaryBody, error) {
 
 	questionary, err := getQuestionary(id)
 
-	if err == nil {
-		return questionary
+	if err != nil {
+		return mockQuestionary(id), err
 	}
 
-	result := models.QuestionaryBody{
-		Id:               id,
-		Title:            "Test",
-		Description:      "Test Questionary",
-		CreatedBy:        "me",
-		IsMultipleChoice: true,
-		IsAnonymous:      true,
-		Options: []models.OptionBody{
-			{
-				Id:   "1",
-				Text: "one",
-			},
-			{
-				Id:   "2",
-				Text: "two",
-			},
-			{
-				Id:   "3",
-				Text: "three",
-			},
-		},
-	}
-
-	return result
+	return questionary, nil
 }
 
 func SaveAnswer(id string, answer models.AnswerBody) {

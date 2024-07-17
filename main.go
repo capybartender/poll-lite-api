@@ -65,8 +65,13 @@ func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
 }
 
 func writeResponseQuestionaryAsJson(w *http.ResponseWriter, id string) {
-	result := dataservice.GetQuestionary(id)
-	writeResponseAsJson(w, result)
+	result, err := dataservice.GetQuestionary(id)
+	if err != nil {
+		// TODO: return proper error
+		fmt.Fprintf(*w, "You've requested POST, but got an error back at %v\n", time.Now())
+	} else {
+		writeResponseAsJson(w, result)
+	}
 }
 
 func main() {

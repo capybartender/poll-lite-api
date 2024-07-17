@@ -6,8 +6,6 @@ import (
 	"strconv"
 )
 
-//var questionaries = []models.QuestionaryBody{}
-
 var questionariesRepository = make(map[string]models.QuestionaryBody, 0)
 
 func getQuestionary(id string) (models.QuestionaryBody, error) {
@@ -29,6 +27,5 @@ func saveQuestionary(id string, body *models.QuestionaryBody) error {
 	}
 
 	questionariesRepository[id] = questionary
-	//questionaries = append(questionaries, questionary)
 	return nil
 }

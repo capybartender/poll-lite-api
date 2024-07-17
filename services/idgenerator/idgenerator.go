@@ -1,6 +1,7 @@
 package idgenerator
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"sync"
@@ -51,7 +52,7 @@ func popNextFreeKey() (string, error) {
 	lastIndex := len(cache) - 1
 
 	if lastIndex < 0 {
-		return "", errNoKeysInCacheError
+		return "", errors.New("there are no keys in the cache")
 	}
 
 	element := cache[lastIndex]
