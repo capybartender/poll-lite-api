@@ -1,4 +1,4 @@
-package dataprovider
+package dataservice
 
 import (
 	"poll-lite/models"
@@ -82,8 +82,19 @@ func SaveAnswer(id string, answer models.AnswerBody) {
 	// TODO: save it
 }
 
-func CreateQuestionary(body models.QuestionaryBody) string {
+func CreateQuestionary(body *models.QuestionaryBody) (string, error) {
 	// TODO: save it
-	key, _ := idgenerator.TakeNextUniqueKey()
-	return key
+	key, err := idgenerator.TakeNextUniqueKey()
+
+	if err != nil {
+		return "", err
+	}
+
+	err = saveQuestionary(key, body)
+
+	if err != nil {
+		return "", err
+	}
+
+	return key, nil
 }
