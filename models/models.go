@@ -14,8 +14,6 @@ type AnswerBody struct {
 	RespondentChoice []OptionId    `json:"respondentChoice"`
 }
 
-/////////////////////////////////
-
 type OptionBody struct {
 	Id   string `json:"id"`
 	Text string `json:"text"`

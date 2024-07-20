@@ -46,7 +46,7 @@ func PollHandlerPost(w http.ResponseWriter, r *http.Request) {
 		dataservice.SaveAnswer(id, &body)
 	}
 
-	writeResponseResultAsJson(&w, id)
+	writeResponseAsJson(&w, id)
 }
 
 func ResultsHandlerGet(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func writeResponseAsJson(w *http.ResponseWriter, val any) error {
 func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
 	// TODO: don't ignore errors, return proper response
 	questionary, _ := dataservice.GetQuestionary(id)
-	answers, _ := dataservice.GetAnswers(id)
+	answers := prepareAnswersViewModel(id, questionary.IsAnonymous)
 
 	result := models.ResultViewModel{
 		Questionary: questionary,
@@ -70,6 +70,17 @@ func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
 	}
 
 	writeResponseAsJson(w, result)
+}
+
+func prepareAnswersViewModel(questionaryId string, isAnonymous bool) []models.AnswerBody {
+	answers, _ := dataservice.GetAnswers(questionaryId)
+	if isAnonymous {
+		for i := 0; i < len(answers); i++ {
+			answer := &answers[i]
+			answer.RespondentName = "N/A"
+		}
+	}
+	return answers
 }
 
 func writeResponseQuestionaryAsJson(w *http.ResponseWriter, id string) {
