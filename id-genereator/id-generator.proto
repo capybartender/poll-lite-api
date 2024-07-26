@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "polllite/idgenerator";
+
+package idgenerator;
+
+service IdGeneratorService {
+  rpc GenerateIds(GenerateIdsRequest) returns (GenerateIdsResponse) {}
+  rpc TrackIdUsage(TrackIdUsageRequest) returns (TrackIdUsageResponse) {}
+}
+
+message GenerateIdsRequest {
+    uint32 count = 1;
+}
+
+message GenerateIdsResponse {
+    repeated string ids = 1;
+}
+
+message TrackIdUsageRequest {
+    string id = 1;
+    bool isUsed = 2;
+}
+
+message TrackIdUsageResponse {}
