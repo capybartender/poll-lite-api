@@ -11,7 +11,7 @@ import (
 const KEY_LENGTH = 12
 const KEYS_TO_GENERATE_COUNT = 100
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
 
 var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
@@ -26,6 +26,7 @@ func randStringBytes(keyLength int) string {
 }
 
 // TODO: make it a separate service - save to a db, check for uniqueness etc.
+// communicate with it via gRPC
 
 func TakeNextUniqueKey() (string, error) {
 	if !generatedKeysAvailable() {

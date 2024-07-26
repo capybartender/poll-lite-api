@@ -16,7 +16,7 @@ func getQuestionary(id string) (models.QuestionaryBody, error) {
 		return questionary, nil
 	}
 
-	return models.QuestionaryBody{}, errors.New("no questionary found")
+	return models.QuestionaryBody{}, errors.New("NOT FOUND: poll with id " + id)
 }
 
 func saveQuestionary(id string, body *models.QuestionaryBody) error {
@@ -39,7 +39,7 @@ func getAnswers(id string) ([]models.AnswerBody, error) {
 		return answers, nil
 	}
 
-	return nil, errors.New("no answers found")
+	return nil, errors.New("NOT FOUND: answers for poll with id " + id)
 }
 
 func saveAnswer(id string, answer *models.AnswerBody) error {

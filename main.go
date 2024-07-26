@@ -31,7 +31,7 @@ func CreateHandlerPost(w http.ResponseWriter, r *http.Request) {
 
 func PollHandlerGet(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	writeResponseQuestionaryAsJson(&w, id)
+	writeResponseQuestionaryAsJson(&w, r, id)
 }
 
 func PollHandlerPost(w http.ResponseWriter, r *http.Request) {
@@ -52,17 +52,32 @@ func PollHandlerPost(w http.ResponseWriter, r *http.Request) {
 func ResultsHandlerGet(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	writeResponseResultAsJson(&w, id)
+	writeResponseResultAsJson(&w, r, id)
 }
 
 func writeResponseAsJson(w *http.ResponseWriter, val any) error {
 	return json.NewEncoder(*w).Encode(val)
 }
 
-func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
+func writeNotFoundError(w *http.ResponseWriter, r *http.Request) {
+	http.NotFound(*w, r)
+}
+
+func writeResponseResultAsJson(w *http.ResponseWriter, r *http.Request, id string) {
 	// TODO: don't ignore errors, return proper response
-	questionary, _ := dataservice.GetQuestionary(id)
-	answers := prepareAnswersViewModel(id, questionary.IsAnonymous)
+	questionary, err := dataservice.GetQuestionary(id)
+
+	if err != nil {
+		writeNotFoundError(w, r)
+		return
+	}
+
+	answers, err := prepareAnswersViewModel(id, questionary.IsAnonymous)
+
+	if err != nil {
+		writeNotFoundError(w, r)
+		return
+	}
 
 	result := models.ResultViewModel{
 		Questionary: questionary,
@@ -72,25 +87,32 @@ func writeResponseResultAsJson(w *http.ResponseWriter, id string) {
 	writeResponseAsJson(w, result)
 }
 
-func prepareAnswersViewModel(questionaryId string, isAnonymous bool) []models.AnswerBody {
-	answers, _ := dataservice.GetAnswers(questionaryId)
+func prepareAnswersViewModel(questionaryId string, isAnonymous bool) ([]models.AnswerBody, error) {
+	answers, err := dataservice.GetAnswers(questionaryId)
+
+	if err != nil {
+		return []models.AnswerBody{}, err
+	}
+
 	if isAnonymous {
 		for i := 0; i < len(answers); i++ {
 			answer := &answers[i]
 			answer.RespondentName = "N/A"
 		}
 	}
-	return answers
+	return answers, nil
 }
 
-func writeResponseQuestionaryAsJson(w *http.ResponseWriter, id string) {
+func writeResponseQuestionaryAsJson(w *http.ResponseWriter, r *http.Request, id string) {
 	result, err := dataservice.GetQuestionary(id)
+
 	if err != nil {
-		// TODO: return proper error
-		fmt.Fprintf(*w, "You've requested POST, but got an error back at %v\n", time.Now())
-	} else {
-		writeResponseAsJson(w, result)
+		writeNotFoundError(w, r)
+		return
 	}
+
+	writeResponseAsJson(w, result)
+
 }
 
 func main() {
