@@ -12,13 +12,7 @@ import (
 
 const target = "localhost:50051"
 
-type connectionObject struct {
-	Client  pb.IdGeneratorServiceClient
-	Context context.Context
-	Cancel  context.CancelFunc
-}
-
-func getConnectionObject() connectionObject {
+func GenerateIds(count uint32) ([]string, error) {
 	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to gRPC server at localhost:50051: %v", err)
@@ -27,71 +21,38 @@ func getConnectionObject() connectionObject {
 
 	c := pb.NewIdGeneratorServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-
-	return connectionObject{c, ctx, cancel}
-}
-
-func GenerateIds(count uint32) {
-	connection := getConnectionObject()
-	defer connection.Cancel()
-
-	resp, err := connection.Client.GenerateIds(connection.Context, &pb.GenerateIdsRequest{Count: count})
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	//-----------------------
+	r, err := c.GenerateIds(ctx, &pb.GenerateIdsRequest{Count: count})
 	if err != nil {
 		log.Fatalf("error calling function GenerateIds: %v", err)
+		return nil, err
 	}
 
-	log.Printf("Response from gRPC server's GenerateIds function: %v", resp.GetIds())
+	result := r.GetIds()
+
+	log.Printf("Response from gRPC server's GenerateIds function: %v", result)
+
+	return result, nil
 }
 
 func TrackIdUsage(id string, isUsed bool) {
-	connection := getConnectionObject()
-	defer connection.Cancel()
+	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect to gRPC server at localhost:50051: %v", err)
+	}
+	defer conn.Close()
 
-	resp, err := connection.Client.TrackIdUsage(connection.Context, &pb.TrackIdUsageRequest{Id: id, IsUsed: isUsed})
+	c := pb.NewIdGeneratorServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	//-----------------------
+	r, err := c.TrackIdUsage(ctx, &pb.TrackIdUsageRequest{Id: id, IsUsed: isUsed})
 	if err != nil {
 		log.Fatalf("error calling function TrackIdUsage: %v", err)
 	}
 
-	log.Printf("Response from gRPC server's TrackIdUsage function: %v", resp.String())
+	log.Printf("Response from gRPC server's TrackIdUsage function: %v", r.String())
 }
-
-// func GenerateIds(count uint32) {
-// 	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
-// 	if err != nil {
-// 		log.Fatalf("failed to connect to gRPC server at localhost:50051: %v", err)
-// 	}
-// 	defer conn.Close()
-
-// 	c := pb.NewIdGeneratorServiceClient(conn)
-
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-// 	defer cancel()
-// 	//-----------------------
-// 	r, err := c.GenerateIds(ctx, &pb.GenerateIdsRequest{Count: count})
-// 	if err != nil {
-// 		log.Fatalf("error calling function GenerateIds: %v", err)
-// 	}
-
-// 	log.Printf("Response from gRPC server's GenerateIds function: %v", r.GetIds())
-// }
-
-// func TrackIdUsage(id string, isUsed bool) {
-// 	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
-// 	if err != nil {
-// 		log.Fatalf("failed to connect to gRPC server at localhost:50051: %v", err)
-// 	}
-// 	defer conn.Close()
-
-// 	c := pb.NewIdGeneratorServiceClient(conn)
-
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-// 	defer cancel()
-// 	//-----------------------
-// 	r, err := c.TrackIdUsage(ctx, &pb.TrackIdUsageRequest{Id: id, IsUsed: isUsed})
-// 	if err != nil {
-// 		log.Fatalf("error calling function TrackIdUsage: %v", err)
-// 	}
-
-// 	log.Printf("Response from gRPC server's TrackIdUsage function: %v", r.String())
-// }

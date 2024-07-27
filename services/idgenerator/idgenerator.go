@@ -2,43 +2,30 @@ package idgenerator
 
 import (
 	"errors"
-	"fmt"
-	"math/rand"
-	"sync"
-	"time"
+	"log"
+	idgeneratorclient "poll-lite/id-generator-client"
 )
 
 const KEY_LENGTH = 12
-const KEYS_TO_GENERATE_COUNT = 100
-
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
-
-var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+const KEYS_TO_GENERATE_COUNT = uint32(100)
 
 var cache = []string{}
 
-func randStringBytes(keyLength int) string {
-	b := make([]byte, keyLength)
-	for i := range b {
-		b[i] = letterBytes[seededRand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
-
-// TODO: make it a separate service - save to a db, check for uniqueness etc.
-// communicate with it via gRPC
-
 func TakeNextUniqueKey() (string, error) {
 	if !generatedKeysAvailable() {
-		generatedKeys := generateKeys(KEYS_TO_GENERATE_COUNT)
-		saveKeys(generatedKeys)
+		generatedKeys, err := idgeneratorclient.GenerateIds(KEYS_TO_GENERATE_COUNT) //generateKeys(KEYS_TO_GENERATE_COUNT)
+		if err != nil {
+			log.Fatalf(err.Error())
+			return "", err
+		}
+
+		saveKeys(&generatedKeys)
 	}
 
 	nextKey, err := popNextFreeKey()
 
 	if err != nil {
-		// log error
-		fmt.Println(err.Error())
+		log.Fatalf(err.Error())
 		return "", err
 	}
 
@@ -66,28 +53,6 @@ func saveKeys(nextKeys *[]string) error {
 	cache = append(cache, *nextKeys...)
 	//todo: use real DB and real cache
 	return nil
-}
-
-func generateSingleKey(result *string, keyLength int, wg *sync.WaitGroup) {
-	defer wg.Done()
-	*result = randStringBytes(keyLength)
-}
-
-func generateKeys(keysCount int) *[]string {
-	keys := make([]string, keysCount)
-
-	var wg sync.WaitGroup
-	wg.Add(keysCount)
-
-	for i := range keysCount {
-		go generateSingleKey(&keys[i], KEY_LENGTH, &wg)
-	}
-
-	wg.Wait()
-
-	keys = *removeDuplicateStr(&keys)
-
-	return &keys
 }
 
 // TODO: when ID is given send a call to main DB service to make the loc not releasable (gRPC)
