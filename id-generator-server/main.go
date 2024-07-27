@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 	"net"
+	"poll-lite/id-generator-server/generator"
+	"poll-lite/id-generator-server/tracker"
 	pb "poll-lite/id-genereator"
 
 	"google.golang.org/grpc"
@@ -14,11 +16,14 @@ type server struct {
 }
 
 func (s *server) GenerateIds(ctx context.Context, in *pb.GenerateIdsRequest) (*pb.GenerateIdsResponse, error) {
-	return &pb.GenerateIdsResponse{Message: "Hello, World! "}, nil
+
+	keys, err := generator.GenerateKeys(in.Count)
+	return &pb.GenerateIdsResponse{Ids: keys}, err
 }
 
 func (s *server) TrackIdUsage(ctx context.Context, in *pb.TrackIdUsageRequest) (*pb.TrackIdUsageResponse, error) {
-	return &pb.TrackIdUsageResponse{Message: "Hello, World! "}, nil
+	err := tracker.TrackIdUsage(in.Id, in.IsUsed)
+	return &pb.TrackIdUsageResponse{}, err
 }
 
 func main() {
