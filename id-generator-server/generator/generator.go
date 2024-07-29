@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -52,10 +53,21 @@ func GenerateKeys(keysCount uint32) ([]string, error) {
 
 	wg.Wait()
 
-	keys = *removeDuplicateStr(&keys)
+	uniqueKeys := removeDuplicateStr(&keys)
 
+	err := saveGeneratedKeys(uniqueKeys)
+
+	if err != nil {
+		//TODO: either log error, or return it EVERYWHERE
+		log.Fatalf("failed to save unique keys to the DB: %s", err.Error())
+		return nil, err
+	}
+
+	return *uniqueKeys, nil
+}
+
+func saveGeneratedKeys(keys *[]string) error {
 	// TODO: save to the DB instead of cache
-	cache = append(cache, keys...)
-
-	return keys, nil
+	cache = append(cache, *keys...)
+	return nil
 }
