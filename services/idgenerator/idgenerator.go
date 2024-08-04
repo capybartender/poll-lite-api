@@ -29,6 +29,12 @@ func TakeNextUniqueKey() (string, error) {
 		return "", err
 	}
 
+	err = idgeneratorclient.TrackIdUsage(nextKey, true)
+	if err != nil {
+		log.Fatalf(err.Error())
+		return "", err
+	}
+
 	return nextKey, nil
 }
 

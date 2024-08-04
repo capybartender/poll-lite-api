@@ -2,6 +2,7 @@ package idgeneratorclient
 
 import (
 	"context"
+	"errors"
 	"log"
 	pb "poll-lite/id-genereator"
 	"time"
@@ -37,7 +38,7 @@ func GenerateIds(count uint32) ([]string, error) {
 	return result, nil
 }
 
-func TrackIdUsage(id string, isUsed bool) {
+func TrackIdUsage(id string, isUsed bool) error {
 	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to gRPC server at localhost:50051: %v", err)
@@ -52,7 +53,9 @@ func TrackIdUsage(id string, isUsed bool) {
 	r, err := c.TrackIdUsage(ctx, &pb.TrackIdUsageRequest{Id: id, IsUsed: isUsed})
 	if err != nil {
 		log.Fatalf("error calling function TrackIdUsage: %v", err)
+		return errors.New("Can't TrackIdUsage on IdGenegerator Server")
 	}
 
 	log.Printf("Response from gRPC server's TrackIdUsage function: %v", r.String())
+	return nil
 }

@@ -57,7 +57,8 @@ func main() {
 	s := grpc.NewServer()
 	idgen.RegisterIdGeneratorServiceServer(s, &server{})
 
-	db.InitDatabase(":memory:")
+	//db.InitDatabase(":memory:")
+	db.InitDatabase("unique_keys.db")
 
 	log.Printf("gRPC server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
