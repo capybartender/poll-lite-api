@@ -4,26 +4,48 @@ import (
 	"context"
 	"log"
 	"net"
+	db "poll-lite/id-generator-server/database"
 	"poll-lite/id-generator-server/generator"
-	"poll-lite/id-generator-server/tracker"
-	pb "poll-lite/id-genereator"
+	idgen "poll-lite/id-genereator"
 
 	"google.golang.org/grpc"
 )
 
 type server struct {
-	pb.UnsafeIdGeneratorServiceServer
+	idgen.UnsafeIdGeneratorServiceServer
 }
 
-func (s *server) GenerateIds(ctx context.Context, in *pb.GenerateIdsRequest) (*pb.GenerateIdsResponse, error) {
+func (s *server) GenerateIds(ctx context.Context, in *idgen.GenerateIdsRequest) (*idgen.GenerateIdsResponse, error) {
+	result := []string{}
 
-	keys, err := generator.GenerateKeys(in.Count)
-	return &pb.GenerateIdsResponse{Ids: keys}, err
+	requestedCount := int(in.Count)
+	var err error = nil
+
+	for len(result) < requestedCount {
+		var keys []string
+		keys, err = generator.GenerateKeys(requestedCount - len(result))
+
+		if err != nil {
+			break
+		}
+
+		for _, key := range keys {
+			err = db.Add(key, true, false)
+			if err == nil {
+				result = append(result, key)
+			}
+		}
+	}
+
+	return &idgen.GenerateIdsResponse{Ids: result}, err
 }
 
-func (s *server) TrackIdUsage(ctx context.Context, in *pb.TrackIdUsageRequest) (*pb.TrackIdUsageResponse, error) {
-	err := tracker.TrackIdUsage(in.Id, in.IsUsed)
-	return &pb.TrackIdUsageResponse{}, err
+func (s *server) TrackIdUsage(ctx context.Context, in *idgen.TrackIdUsageRequest) (*idgen.TrackIdUsageResponse, error) {
+	err := db.SetIsUsed(in.Id, in.IsUsed)
+	if !in.IsUsed {
+		err = db.SetIsBooked(in.Id, false)
+	}
+	return &idgen.TrackIdUsageResponse{}, err
 }
 
 func main() {
@@ -33,7 +55,10 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterIdGeneratorServiceServer(s, &server{})
+	idgen.RegisterIdGeneratorServiceServer(s, &server{})
+
+	db.InitDatabase(":memory:")
+
 	log.Printf("gRPC server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

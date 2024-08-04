@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -12,8 +11,6 @@ const KEY_LENGTH = 12
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
 
 var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-
-var cache = []string{}
 
 func randStringBytes(keyLength int) string {
 	b := make([]byte, keyLength)
@@ -41,11 +38,11 @@ func generateSingleKey(result *string, keyLength int, wg *sync.WaitGroup) {
 }
 
 // TODO: make length an argument
-func GenerateKeys(keysCount uint32) ([]string, error) {
+func GenerateKeys(keysCount int) ([]string, error) {
 	keys := make([]string, keysCount)
 
 	var wg sync.WaitGroup
-	wg.Add(int(keysCount))
+	wg.Add(keysCount)
 
 	for i := range keysCount {
 		go generateSingleKey(&keys[i], KEY_LENGTH, &wg)
@@ -55,19 +52,5 @@ func GenerateKeys(keysCount uint32) ([]string, error) {
 
 	uniqueKeys := removeDuplicateStr(&keys)
 
-	err := saveGeneratedKeys(uniqueKeys)
-
-	if err != nil {
-		//TODO: either log error, or return it EVERYWHERE
-		log.Fatalf("failed to save unique keys to the DB: %s", err.Error())
-		return nil, err
-	}
-
 	return *uniqueKeys, nil
-}
-
-func saveGeneratedKeys(keys *[]string) error {
-	// TODO: save to the DB instead of cache
-	cache = append(cache, *keys...)
-	return nil
 }

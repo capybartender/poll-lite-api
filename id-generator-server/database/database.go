@@ -17,10 +17,23 @@ type UniqueKey struct {
 	IsUsed   bool
 }
 
-func addUniqueKey(uk *UniqueKey) error {
+// func Add(uk *UniqueKey) error {
+// 	_, err := db.ExecContext(
+// 		context.Background(),
+// 		`INSERT INTO unique_key (key, isBooked, isUsed) VALUES (?,?,?);`, uk.Key, uk.IsBooked, uk.IsUsed,
+// 	)
+// 	// rest of the function
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+func Add(key string, isBooked bool, isUsed bool) error {
 	_, err := db.ExecContext(
 		context.Background(),
-		`INSERT INTO unique_key (key, isBooked, isUsed) VALUES (?,?,?);`, uk.Key, uk.IsBooked, uk.IsUsed,
+		`INSERT INTO unique_key (key, isBooked, isUsed) VALUES (?,?,?);`, key, isBooked, isUsed,
 	)
 	// rest of the function
 	if err != nil {
@@ -30,7 +43,7 @@ func addUniqueKey(uk *UniqueKey) error {
 	return nil
 }
 
-func setIsBooked(key string, isBooked bool) error {
+func SetIsBooked(key string, isBooked bool) error {
 	_, err := db.ExecContext(
 		context.Background(),
 		`UPDATE unique_key SET isBooked=? WHERE key=?;`, isBooked, key,
@@ -43,7 +56,7 @@ func setIsBooked(key string, isBooked bool) error {
 	return nil
 }
 
-func setIsUsed(key string, isUsed bool) error {
+func SetIsUsed(key string, isUsed bool) error {
 	_, err := db.ExecContext(
 		context.Background(),
 		`UPDATE unique_key SET isUsed=? WHERE key=?;`, isUsed, key,
@@ -56,7 +69,7 @@ func setIsUsed(key string, isUsed bool) error {
 	return nil
 }
 
-func getKey(key string) (UniqueKey, error) {
+func Get(key string) (UniqueKey, error) {
 
 	var uniqueKey UniqueKey
 
@@ -74,7 +87,7 @@ func getKey(key string) (UniqueKey, error) {
 	return uniqueKey, nil
 }
 
-func getKeys(count int, isBooked bool, isUsed bool) ([]UniqueKey, error) {
+func GetMany(count int, isBooked bool, isUsed bool) ([]UniqueKey, error) {
 	var keys []UniqueKey
 	rows, err := db.QueryContext(
 		context.Background(),
@@ -99,7 +112,7 @@ func getKeys(count int, isBooked bool, isUsed bool) ([]UniqueKey, error) {
 	return keys, err
 }
 
-func initDatabase(dbPath string) error {
+func InitDatabase(dbPath string) error {
 	var err error
 	db, err = sql.Open("sqlite", dbPath)
 	if err != nil {
