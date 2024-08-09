@@ -6,14 +6,15 @@ import (
 	idgeneratorclient "poll-lite/id-generator-client"
 )
 
-const KEY_LENGTH = 12
+const KEY_LENGTH = uint32(12)
 const KEYS_TO_GENERATE_COUNT = uint32(100)
 
+// TODO: replace with sqlite
 var cache = []string{}
 
 func TakeNextUniqueKey() (string, error) {
 	if !generatedKeysAvailable() {
-		generatedKeys, err := idgeneratorclient.GenerateIds(KEYS_TO_GENERATE_COUNT) //generateKeys(KEYS_TO_GENERATE_COUNT)
+		generatedKeys, err := idgeneratorclient.GenerateIds(KEYS_TO_GENERATE_COUNT, KEY_LENGTH)
 		if err != nil {
 			log.Fatalf(err.Error())
 			return "", err
@@ -60,8 +61,6 @@ func saveKeys(nextKeys *[]string) error {
 	//todo: use real DB and real cache
 	return nil
 }
-
-// TODO: when ID is given send a call to main DB service to make the loc not releasable (gRPC)
 
 // Job1 - Check if there is 100 IDs available (messages: giveMe100Ids ->, receive100Ids <-)
 //    1. no - generate 10 x 100 IDs -> 2

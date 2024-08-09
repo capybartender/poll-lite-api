@@ -11,6 +11,7 @@ service IdGeneratorService {
 
 message GenerateIdsRequest {
     uint32 count = 1;
+    uint32 length = 2;
 }
 
 message GenerateIdsResponse {

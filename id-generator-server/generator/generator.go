@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const KEY_LENGTH = 12
-
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
 
 var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -37,15 +35,14 @@ func generateSingleKey(result *string, keyLength int, wg *sync.WaitGroup) {
 	*result = randStringBytes(keyLength)
 }
 
-// TODO: make length an argument
-func GenerateKeys(keysCount int) ([]string, error) {
+func GenerateKeys(keysCount int, keyLength int) ([]string, error) {
 	keys := make([]string, keysCount)
 
 	var wg sync.WaitGroup
 	wg.Add(keysCount)
 
 	for i := range keysCount {
-		go generateSingleKey(&keys[i], KEY_LENGTH, &wg)
+		go generateSingleKey(&keys[i], keyLength, &wg)
 	}
 
 	wg.Wait()

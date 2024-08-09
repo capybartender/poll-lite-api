@@ -19,16 +19,13 @@ func (s *server) GenerateIds(ctx context.Context, in *idgen.GenerateIdsRequest) 
 	result := []string{}
 
 	requestedCount := int(in.Count)
+	requestedLength := int(in.Length)
 	var err error = nil
 
-	for len(result) < requestedCount {
-		var keys []string
-		keys, err = generator.GenerateKeys(requestedCount - len(result))
+	var keys []string
+	keys, err = generator.GenerateKeys(requestedCount-len(result), requestedLength)
 
-		if err != nil {
-			break
-		}
-
+	if err == nil {
 		for _, key := range keys {
 			err = db.Add(key, true, false)
 			if err == nil {

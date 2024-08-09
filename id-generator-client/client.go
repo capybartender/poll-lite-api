@@ -13,7 +13,7 @@ import (
 
 const target = "localhost:50051"
 
-func GenerateIds(count uint32) ([]string, error) {
+func GenerateIds(count uint32, length uint32) ([]string, error) {
 	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to gRPC server at localhost:50051: %v", err)
@@ -25,13 +25,23 @@ func GenerateIds(count uint32) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	//-----------------------
-	r, err := c.GenerateIds(ctx, &pb.GenerateIdsRequest{Count: count})
-	if err != nil {
-		log.Fatalf("error calling function GenerateIds: %v", err)
-		return nil, err
-	}
+	var result []string
 
-	result := r.GetIds()
+	var callNumber uint32 = 0
+	for result == nil || len(result) < int(count) {
+
+		generateRequest := &pb.GenerateIdsRequest{Count: count, Length: length + callNumber}
+		r, err := c.GenerateIds(ctx, generateRequest)
+		if err != nil {
+			log.Fatalf("error calling function GenerateIds: %v", err)
+			return nil, err
+		}
+
+		generatedIds := r.GetIds()
+		result = append(result, generatedIds...)
+
+		callNumber++
+	}
 
 	log.Printf("Response from gRPC server's GenerateIds function: %v", result)
 

@@ -6,8 +6,10 @@ import (
 	"strconv"
 )
 
+// TODO: replace with sqlite
 var questionariesRepository = make(map[string]models.QuestionaryBody, 0)
 
+// TODO: replace with sqlite
 var answersRepository = make(map[string][]models.AnswerBody, 0)
 
 func getQuestionary(id string) (models.QuestionaryBody, error) {
